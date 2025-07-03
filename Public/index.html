@@ -1,0 +1,664 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LIGHTSECRET HOSTING - Pembayaran Luar Angkasa</title>
+    <style>
+        /* RESET & BASE STYLES */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        body {
+            background: radial-gradient(circle at center, #000a2e 0%, #000000 70%);
+            color: #ffffff;
+            min-height: 100vh;
+            overflow-x: hidden;
+            position: relative;
+        }
+        
+        /* STARFIELD BACKGROUND */
+        .starfield {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -1;
+            overflow: hidden;
+        }
+        
+        .stars {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: transparent;
+        }
+        
+        .stars:after {
+            content: "";
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: radial-gradient(ellipse at center, rgba(255,255,255,0.1) 0%, rgba(0,0,0,0) 70%);
+            animation: pulse 8s infinite alternate;
+        }
+        
+        .star {
+            position: absolute;
+            background-color: #ffffff;
+            border-radius: 50%;
+            animation: twinkle var(--duration) infinite ease-in-out;
+        }
+        
+        .comet {
+            position: absolute;
+            width: 6px;
+            height: 2px;
+            background: linear-gradient(to right, rgba(255,255,255,0) 0%, rgba(173,216,255,0.8) 30%, rgba(255,255,255,1) 100%);
+            border-radius: 50%;
+            filter: blur(1px);
+            transform: rotate(-45deg);
+            animation: cometFly var(--duration) linear infinite;
+            opacity: 0;
+        }
+        
+        /* PLANET */
+        .planet {
+            position: absolute;
+            top: 10%;
+            right: 5%;
+            width: 150px;
+            height: 150px;
+            border-radius: 50%;
+            background: radial-gradient(circle at 30% 30%, #4a148c, #1a237e, #0d47a1);
+            box-shadow: 0 0 40px rgba(66, 133, 244, 0.5);
+            animation: rotate 60s linear infinite;
+            z-index: -1;
+        }
+        
+        .planet:before {
+            content: "";
+            position: absolute;
+            top: 20%;
+            left: 10%;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.1);
+        }
+        
+        /* HEADER & PROFILE */
+        header {
+            text-align: center;
+            padding: 30px 20px 0;
+            position: relative;
+            z-index: 10;
+        }
+        
+        .profile-container {
+            margin: 0 auto 20px;
+            width: 120px;
+            height: 120px;
+            border-radius: 50%;
+            position: relative;
+            animation: fadeUp 1s ease-out forwards;
+        }
+        
+        .profile-glow {
+            position: absolute;
+            top: -5px;
+            left: -5px;
+            width: 130px;
+            height: 130px;
+            border-radius: 50%;
+            background: radial-gradient(circle, rgba(100, 181, 246, 0.6) 0%, transparent 70%);
+            animation: glowPulse 3s infinite alternate;
+            z-index: -1;
+        }
+        
+        .profile-img {
+            width: 120px;
+            height: 120px;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 2px solid rgba(255, 255, 255, 0.1);
+            position: relative;
+            z-index: 2;
+        }
+        
+        h1 {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 1.8rem;
+            letter-spacing: 2px;
+            margin-bottom: 5px;
+            text-shadow: 0 0 15px rgba(100, 181, 246, 0.7);
+            animation: fadeUp 1s 0.2s ease-out backwards;
+        }
+        
+        .subtitle {
+            font-size: 1rem;
+            opacity: 0.8;
+            max-width: 300px;
+            margin: 0 auto 30px;
+            animation: fadeUp 1s 0.4s ease-out backwards;
+        }
+        
+        /* PAYMENT CARDS */
+        .payment-section {
+            padding: 20px;
+            max-width: 500px;
+            margin: 0 auto;
+            position: relative;
+            z-index: 10;
+        }
+        
+        .payment-title {
+            text-align: center;
+            font-size: 1.4rem;
+            margin-bottom: 25px;
+            position: relative;
+            animation: fadeUp 1s 0.6s ease-out backwards;
+        }
+        
+        .payment-title:after {
+            content: "";
+            position: absolute;
+            bottom: -8px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 80px;
+            height: 2px;
+            background: linear-gradient(to right, transparent, #64b5f6, transparent);
+        }
+        
+        .cards-container {
+            display: flex;
+            flex-direction: column;
+            gap: 25px;
+        }
+        
+        .card {
+            background: rgba(13, 26, 51, 0.7);
+            border: 1px solid rgba(100, 181, 246, 0.3);
+            border-radius: 16px;
+            padding: 25px;
+            backdrop-filter: blur(10px);
+            box-shadow: 0 10px 20px rgba(0, 10, 46, 0.5), 
+                        0 0 15px rgba(100, 181, 246, 0.3);
+            transition: all 0.4s ease;
+            animation: fadeUp 1s var(--delay) ease-out backwards;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .card:hover {
+            transform: translateY(-8px);
+            box-shadow: 0 15px 30px rgba(0, 20, 80, 0.7), 
+                        0 0 25px rgba(100, 181, 246, 0.6);
+        }
+        
+        .card:before {
+            content: "";
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: radial-gradient(circle at 50% 0%, rgba(100, 181, 246, 0.1), transparent 70%);
+            pointer-events: none;
+        }
+        
+        .card-header {
+            display: flex;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+        
+        .card-logo {
+            width: 50px;
+            height: 50px;
+            object-fit: contain;
+            margin-right: 15px;
+            border-radius: 10px;
+            background: rgba(255, 255, 255, 0.1);
+            padding: 5px;
+        }
+        
+        .card-title {
+            font-size: 1.4rem;
+            font-weight: 600;
+        }
+        
+        .card-number {
+            font-size: 1.3rem;
+            letter-spacing: 1px;
+            margin-bottom: 25px;
+            text-align: center;
+            font-family: 'Courier New', monospace;
+            background: rgba(0, 0, 0, 0.3);
+            padding: 12px;
+            border-radius: 10px;
+            word-break: break-all;
+        }
+        
+        .copy-btn {
+            display: block;
+            width: 100%;
+            padding: 15px;
+            background: linear-gradient(to right, #1a237e, #4a148c);
+            color: white;
+            border: none;
+            border-radius: 10px;
+            font-size: 1.1rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+            box-shadow: 0 5px 15px rgba(74, 20, 140, 0.4);
+        }
+        
+        .copy-btn:hover {
+            background: linear-gradient(to right, #283593, #6a1b9a);
+            box-shadow: 0 5px 20px rgba(106, 27, 154, 0.6);
+        }
+        
+        .copy-btn:active {
+            transform: scale(0.98);
+        }
+        
+        .copy-message {
+            position: absolute;
+            top: -25px;
+            left: 50%;
+            transform: translateX(-50%) scale(0);
+            background: rgba(46, 125, 50, 0.9);
+            color: white;
+            padding: 5px 10px;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            transition: transform 0.3s ease;
+            z-index: 5;
+        }
+        
+        .copy-message.show {
+            transform: translateX(-50%) scale(1);
+        }
+        
+        /* QRIS SECTION */
+        .qris-section {
+            padding: 40px 20px;
+            text-align: center;
+            margin-top: 30px;
+            position: relative;
+            z-index: 10;
+        }
+        
+        .qris-title {
+            font-size: 1.2rem;
+            margin-bottom: 20px;
+            text-shadow: 0 0 10px rgba(100, 181, 246, 0.7);
+        }
+        
+        .qris-container {
+            max-width: 300px;
+            margin: 0 auto;
+            padding: 15px;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 20px;
+            box-shadow: 0 0 30px rgba(100, 181, 246, 0.3);
+        }
+        
+        .qris-img {
+            width: 100%;
+            height: auto;
+            border-radius: 15px;
+            display: block;
+        }
+        
+        /* FOOTER */
+        footer {
+            text-align: center;
+            padding: 30px 20px;
+            font-size: 0.9rem;
+            opacity: 0.7;
+        }
+        
+        /* ANIMATIONS */
+        @keyframes fadeUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        @keyframes rotate {
+            from {
+                transform: rotate(0deg);
+            }
+            to {
+                transform: rotate(360deg);
+            }
+        }
+        
+        @keyframes twinkle {
+            0%, 100% {
+                opacity: 0.2;
+                transform: scale(0.9);
+            }
+            50% {
+                opacity: 1;
+                transform: scale(1.1);
+            }
+        }
+        
+        @keyframes cometFly {
+            0% {
+                opacity: 0;
+                transform: translateX(-100px) rotate(-45deg);
+            }
+            10% {
+                opacity: 1;
+            }
+            100% {
+                opacity: 0;
+                transform: translateX(100vw) rotate(-45deg);
+            }
+        }
+        
+        @keyframes glowPulse {
+            0% {
+                transform: scale(0.95);
+                opacity: 0.7;
+            }
+            100% {
+                transform: scale(1.05);
+                opacity: 1;
+            }
+        }
+        
+        @keyframes pulse {
+            0% {
+                opacity: 0.3;
+            }
+            100% {
+                opacity: 0.1;
+            }
+        }
+        
+        @keyframes vibrate {
+            0% { transform: translateX(0); }
+            25% { transform: translateX(-3px); }
+            50% { transform: translateX(3px); }
+            75% { transform: translateX(-3px); }
+            100% { transform: translateX(0); }
+        }
+        
+        .vibrate {
+            animation: vibrate 0.3s ease;
+        }
+        
+        .btn-glow {
+            box-shadow: 0 0 25px rgba(100, 181, 246, 0.8);
+        }
+        
+        /* RESPONSIVE DESIGN */
+        @media (min-width: 768px) {
+            .profile-container {
+                width: 140px;
+                height: 140px;
+            }
+            
+            .profile-img {
+                width: 140px;
+                height: 140px;
+            }
+            
+            .profile-glow {
+                width: 150px;
+                height: 150px;
+            }
+            
+            h1 {
+                font-size: 2.2rem;
+            }
+            
+            .payment-title {
+                font-size: 1.6rem;
+            }
+            
+            .planet {
+                width: 200px;
+                height: 200px;
+                top: 15%;
+                right: 10%;
+            }
+            
+            .card {
+                padding: 30px;
+            }
+            
+            .qris-container {
+                max-width: 350px;
+            }
+        }
+        
+        @media (min-width: 992px) {
+            .cards-container {
+                flex-direction: row;
+                flex-wrap: wrap;
+                justify-content: center;
+            }
+            
+            .card {
+                width: calc(50% - 15px);
+                max-width: 300px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- STARFIELD BACKGROUND -->
+    <div class="starfield" id="starfield"></div>
+    
+    <!-- PLANET -->
+    <div class="planet"></div>
+    
+    <!-- HEADER SECTION -->
+    <header>
+        <div class="profile-container">
+            <div class="profile-glow"></div>
+            <img src="https://files.catbox.moe/h3nu9c.jpg" alt="Profile" class="profile-img">
+        </div>
+        <h1>LIGHTSECRET HOSTING</h1>
+        <p class="subtitle">Pembayaran Aman & Cepat Melalui Galaxy Digital</p>
+    </header>
+    
+    <!-- PAYMENT CARDS SECTION -->
+    <section class="payment-section">
+        <h2 class="payment-title">Pilih Metode Pembayaran</h2>
+        <div class="cards-container">
+            <!-- Dana Card -->
+            <div class="card" style="--delay: 0.6s">
+                <div class="card-header">
+                    <img src="https://files.catbox.moe/ub1asb.jpg" alt="Dana" class="card-logo">
+                    <h3 class="card-title">DANA</h3>
+                </div>
+                <p class="card-number">085900017703</p>
+                <div class="btn-container">
+                    <button class="copy-btn" onclick="copyNumber('085900017703', this)">Salin Nomor Dana
+                        <span class="copy-message">✅ Disalin!</span>
+                    </button>
+                </div>
+            </div>
+            
+            <!-- OVO Card -->
+            <div class="card" style="--delay: 0.8s">
+                <div class="card-header">
+                    <img src="https://files.catbox.moe/xk31nx.jpg" alt="OVO" class="card-logo">
+                    <h3 class="card-title">OVO</h3>
+                </div>
+                <p class="card-number">085900017703</p>
+                <div class="btn-container">
+                    <button class="copy-btn" onclick="copyNumber('085900017703', this)">Salin Nomor OVO
+                        <span class="copy-message">✅ Disalin!</span>
+                    </button>
+                </div>
+            </div>
+            
+            <!-- Gopay Card -->
+            <div class="card" style="--delay: 1s">
+                <div class="card-header">
+                    <img src="https://files.catbox.moe/46j4wz.jpg" alt="Gopay" class="card-logo">
+                    <h3 class="card-title">GOPAY</h3>
+                </div>
+                <p class="card-number">085900017703</p>
+                <div class="btn-container">
+                    <button class="copy-btn" onclick="copyNumber('085900017703', this)">Salin Nomor Gopay
+                        <span class="copy-message">✅ Disalin!</span>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </section>
+    
+    <!-- QRIS SECTION -->
+    <section class="qris-section">
+        <h3 class="qris-title">Scan QRIS di bawah untuk semua metode pembayaran</h3>
+        <div class="qris-container">
+            <img src="https://files.catbox.moe/ctbtep.jpg" alt="QRIS" class="qris-img">
+        </div>
+    </section>
+    
+    <!-- FOOTER -->
+    <footer>
+        <p>© 2025 LIGHTSECRET HOSTING. All rights reserved.</p>
+    </footer>
+    
+    <!-- SPACE AUDIO -->
+    <audio id="spaceSound" loop>
+        <source src="data:audio/mpeg;base64,SUQzBAAAAAABEVRYWFgAAAAtAAADY29tbWVudABCaWdTb3VuZEJhbmsuY29tIC8gTGFTb25vdGhlcXVlLm9yZwBURU5DAAAAHQAAA1N3aXRjaCBQbHVzIMKpIE5DSCBTb2Z0d2FyZQBUSVQyAAAABgAAAzIyMzUAVFNTRQAAAA8AAANMYXZmNTcuODMuMTAwAAAAAAAAAAAAAAD/80DEAAAAA0gAAAAATEFNRTMuMTAwVVVVVVVVVVVVVUxBTUUzLjEwMFVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVf/zQsRbAAADSAAAAABVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVf/zQMSkAAADSAAAAABVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVV" type="audio/mpeg">
+    </audio>
+    
+    <script>
+        // Generate stars and comets
+        document.addEventListener('DOMContentLoaded', function() {
+            const starfield = document.getElementById('starfield');
+            
+            // Create stars
+            for (let i = 0; i < 150; i++) {
+                const star = document.createElement('div');
+                star.classList.add('star');
+                star.style.left = `${Math.random() * 100}%`;
+                star.style.top = `${Math.random() * 100}%`;
+                star.style.width = `${Math.random() * 3}px`;
+                star.style.height = star.style.width;
+                star.style.opacity = Math.random() * 0.5 + 0.1;
+                star.style.setProperty('--duration', `${Math.random() * 3 + 2}s`);
+                starfield.appendChild(star);
+            }
+            
+            // Create comets
+            for (let i = 0; i < 5; i++) {
+                const comet = document.createElement('div');
+                comet.classList.add('comet');
+                comet.style.top = `${Math.random() * 100}%`;
+                comet.style.setProperty('--duration', `${Math.random() * 20 + 15}s`);
+                comet.style.setProperty('--delay', `${Math.random() * 10}s`);
+                comet.style.animationDelay = `calc(var(--delay) * -1)`;
+                starfield.appendChild(comet);
+            }
+            
+            // Start space sound
+            try {
+                const spaceSound = document.getElementById('spaceSound');
+                spaceSound.volume = 0.3;
+                
+                // Enable audio on user interaction
+                document.body.addEventListener('click', function initAudio() {
+                    spaceSound.play().catch(e => console.log("Audio play failed:", e));
+                    document.body.removeEventListener('click', initAudio);
+                });
+            } catch (e) {
+                console.log("Audio error:", e);
+            }
+        });
+        
+        // Copy number to clipboard function
+        function copyNumber(number, button) {
+            // Create temporary input
+            const tempInput = document.createElement('input');
+            tempInput.value = number;
+            document.body.appendChild(tempInput);
+            tempInput.select();
+            
+            // Copy to clipboard
+            try {
+                document.execCommand('copy');
+                
+                // Show success message
+                const message = button.querySelector('.copy-message');
+                message.classList.add('show');
+                
+                // Add button effects
+                button.classList.add('btn-glow', 'vibrate');
+                
+                // Play sound effect
+                playSound();
+                
+                // Remove effects after animation
+                setTimeout(() => {
+                    message.classList.remove('show');
+                    button.classList.remove('btn-glow');
+                }, 2000);
+                
+            } catch (err) {
+                console.error('Failed to copy: ', err);
+            } finally {
+                // Clean up
+                document.body.removeChild(tempInput);
+            }
+        }
+        
+        // Play sound effect function
+        function playSound() {
+            try {
+                const ctx = new (window.AudioContext || window.webkitAudioContext)();
+                const oscillator = ctx.createOscillator();
+                const gainNode = ctx.createGain();
+                
+                oscillator.connect(gainNode);
+                gainNode.connect(ctx.destination);
+                
+                oscillator.type = 'sine';
+                oscillator.frequency.value = 523.25; // C5
+                gainNode.gain.value = 0.3;
+                
+                oscillator.start();
+                
+                // Fade out
+                gainNode.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.3);
+                
+                setTimeout(() => {
+                    oscillator.stop();
+                }, 300);
+            } catch (e) {
+                console.log("Sound effect error:", e);
+            }
+        }
+    </script>
+</body>
+</html>
